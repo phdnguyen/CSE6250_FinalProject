@@ -8,12 +8,27 @@ from sklearn.cluster import KMeans
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
 from sklearn.pipeline import Pipeline
+import logging
+
 
 
 # Set the root directory to the project root
 root_dir = Path(__file__).resolve().parents[2]
 
 in_path = root_dir / 'data' / 'processed' / '1_cleaned_data.csv'
+
+log_path = root_dir / 'logs' / 'svm_results.log'
+
+# Ensure the log directory exists
+log_path.parent.mkdir(parents=True, exist_ok=True)
+
+# Configure logging to use log_path
+logging.basicConfig(
+    filename=log_path,               # Use log_path as the log file
+    level=logging.INFO,               # Set log level
+    format="%(asctime)s - %(levelname)s - %(message)s"  # Log format
+)
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -41,11 +56,12 @@ def main():
     
     predictions = binary_svm.predict(X_test)
     
-    print('---------------------------------------------------')
-    print('Binary Results')
-    print('---------------------------------------------------')
-    print(classification_report(Y_test, predictions, digits=3))
-    print('---------------------------------------------------')
+    logger.info('------------------------------------------')
+    logger.info('Binary Results')
+    logger.info('------------------------------------------')
+    binary_report = classification_report(Y_test, predictions, digits=3)
+    logger.info("\n" + binary_report)
+    logger.info('------------------------------------------')
     
     
     #multi-class classification
@@ -62,11 +78,12 @@ def main():
     
     predictions = multi_svm.predict(X_test)
 
-    print('---------------------------------------------------')
-    print('Multi-class Results')
-    print('---------------------------------------------------')
-    print(classification_report(Y_test, predictions, digits=3))
-    print('---------------------------------------------------')
+    logger.info('------------------------------------------')
+    logger.info('Multi-class Results')
+    logger.info('------------------------------------------')
+    multi_class_report = classification_report(Y_test, predictions, digits=3)
+    logger.info("\n" + multi_class_report)
+    logger.info('------------------------------------------')
 
 if __name__ == "__main__":
     main()
