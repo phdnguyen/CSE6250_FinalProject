@@ -8,5 +8,4 @@ data/raw/NOTEEVENTS.csv.gz (from MIMIC III Clinical Database 1.4 https://physion
 
 ### Environment set up
 
-conda install --yes --file requirements.txt
-
+conda create --name <env> --file requirements.txt
