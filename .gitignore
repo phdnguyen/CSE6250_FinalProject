@@ -166,3 +166,8 @@ cython_debug/
 
 data/raw/
 data/processed/
+
+
+#Mac files
+
+.DS_Store
