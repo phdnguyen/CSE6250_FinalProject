@@ -35,19 +35,19 @@ conda create --name <env> --file requirements.txt
 │   │   └── word_index.pkl
 │   └── raw
 │       └── NOTEEVENTS.csv.gz
+├── environment.yml
 ├── logs
+│   ├── lstm_results.log
 │   └── svm_results.log
 ├── notebook.ipynb
 ├── output
-├── requirements.txt
 └── src
-    ├── data_preprocessing
+    ├── data_processing
     │   ├── 0_filter_data.py
     │   ├── 1_clean_data.py
     │   └── 2_embedding.py
     ├── models
-    │   └── cnn.py
-    ├── pipelines
+    │   ├── cnn.py
     │   ├── lstm.py
     │   └── svm.py
     └── utils
