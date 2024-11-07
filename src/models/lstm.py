@@ -18,12 +18,11 @@ log_path = root_dir / "logs" / "lstm_results.log"
 # Ensure the log directory exists
 log_path.parent.mkdir(parents=True, exist_ok=True)
 
-# Configure logging to use log_path, appending to the existing log file
 logging.basicConfig(
     filename=log_path,  # Use log_path as the log file
     level=logging.INFO,  # Set log level
-    format="%(asctime)s - %(levelname)s - %(message)s",  # Log format
-    filemode='a'  # Append to the log file instead of overwriting
+    format="%(asctime)s - %(levelname)s - %(message)s", 
+    filemode='a'  
 )
 logger = logging.getLogger(__name__)
 
@@ -42,6 +41,8 @@ cleaned_data = pd.read_csv(cleaned_data_path)
 MAX_SEQ_LENGTH = len(max(cleaned_data["TEXT"]))  # max length of a note
 MAX_NUM_WORDS = 10000  # keep only x top words in the corpus
 EMBEDDING_DIM = 300  # dim of GoogleNews
+BATCH_SIZE = 128
+EPOCHS = 2
 
 # Log basic information
 logger.info("Starting LSTM model training")
@@ -78,11 +79,11 @@ logger.info(f"Testing set size: {x_test.shape[0]}")
 
 # Log training parameters
 logger.info("Training model with the following parameters:")
-logger.info(f"Batch size: 128")
-logger.info(f"Epochs: 5")
+logger.info(f"Batch size: {BATCH_SIZE}")
+logger.info(f"Epochs: {EPOCHS}")
 
 # Train the model
-history = model.fit(x_train, y_train, batch_size=128, epochs=5)
+history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS)
 
 # Log training history
 logger.info("Training completed.")
