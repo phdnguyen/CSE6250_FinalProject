@@ -19,6 +19,7 @@ conda create --name <env> --file requirements.txt
 
 ### Directory tree
 
+```
 .
 ├── README.md
 ├── data
@@ -51,3 +52,4 @@ conda create --name <env> --file requirements.txt
     │   └── svm.py
     └── utils
         └── plot.py
+```
