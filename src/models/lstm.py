@@ -39,6 +39,7 @@ with open(embedding_matrix_path, "rb") as f:
 cleaned_data = pd.read_csv(cleaned_data_path)
 
 MAX_SEQ_LENGTH = len(max(cleaned_data["TEXT"]))  # max length of a note
+# MAX_SEQ_LENGTH = 500  # reduce length for the run test to avoid processing issue
 MAX_NUM_WORDS = 10000  # keep only x top words in the corpus
 EMBEDDING_DIM = 300  # dim of GoogleNews
 BATCH_SIZE = 128
