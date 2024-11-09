@@ -14,13 +14,11 @@ contractions.json (https://www.kaggle.com/datasets/yetman/english-contractions)
 
 ### Environment set up
 
-conda create --name <env> --file requirements.txt
-
+conda create --name `<env>` --file environment.yml
 
 ### Directory tree
 
 ```
-.
 ├── README.md
 ├── data
 │   ├── external
@@ -35,20 +33,20 @@ conda create --name <env> --file requirements.txt
 │   │   └── word_index.pkl
 │   └── raw
 │       └── NOTEEVENTS.csv.gz
+├── environment.yml
 ├── logs
+│   ├── lstm_bi_results.log
 │   └── svm_results.log
 ├── notebook.ipynb
 ├── output
-├── requirements.txt
 └── src
-    ├── data_preprocessing
+    ├── data_processing
     │   ├── 0_filter_data.py
     │   ├── 1_clean_data.py
     │   └── 2_embedding.py
     ├── models
-    │   └── cnn.py
-    ├── pipelines
-    │   ├── lstm.py
+    │   ├── cnn.py
+    │   ├── lstm_bi.py
     │   └── svm.py
     └── utils
         └── plot.py
