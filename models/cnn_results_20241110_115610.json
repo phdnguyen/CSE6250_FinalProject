@@ -1,0 +1,46 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4654212622873245,
+      "val_loss": 0.763557180762291,
+      "train_report": "              precision    recall  f1-score   support\n\n         0.0      0.391     0.592     0.471       331\n         1.0      0.720     0.532     0.612       652\n\n    accuracy                          0.552       983\n   macro avg      0.556     0.562     0.542       983\nweighted avg      0.609     0.552     0.565       983\n",
+      "val_report": "              precision    recall  f1-score   support\n\n         0.0      0.336     1.000     0.504       142\n         1.0      0.000     0.000     0.000       280\n\n    accuracy                          0.336       422\n   macro avg      0.168     0.500     0.252       422\nweighted avg      0.113     0.336     0.169       422\n"
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.3611158968940858,
+      "val_loss": 0.6198059618473053,
+      "train_report": "              precision    recall  f1-score   support\n\n         0.0      0.581     0.804     0.674       331\n         1.0      0.876     0.706     0.782       652\n\n    accuracy                          0.739       983\n   macro avg      0.728     0.755     0.728       983\nweighted avg      0.777     0.739     0.745       983\n",
+      "val_report": "              precision    recall  f1-score   support\n\n         0.0      0.336     1.000     0.504       142\n         1.0      0.000     0.000     0.000       280\n\n    accuracy                          0.336       422\n   macro avg      0.168     0.500     0.252       422\nweighted avg      0.113     0.336     0.169       422\n"
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.23873582530406215,
+      "val_loss": 0.4306282103061676,
+      "train_report": "              precision    recall  f1-score   support\n\n         0.0      0.774     0.940     0.849       331\n         1.0      0.966     0.860     0.910       652\n\n    accuracy                          0.887       983\n   macro avg      0.870     0.900     0.879       983\nweighted avg      0.901     0.887     0.889       983\n",
+      "val_report": "              precision    recall  f1-score   support\n\n         0.0      0.386     0.965     0.551       142\n         1.0      0.925     0.221     0.357       280\n\n    accuracy                          0.472       422\n   macro avg      0.656     0.593     0.454       422\nweighted avg      0.744     0.472     0.423       422\n"
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.17450470020694117,
+      "val_loss": 0.4040939190558025,
+      "train_report": "              precision    recall  f1-score   support\n\n         0.0      0.876     0.982     0.926       331\n         1.0      0.990     0.929     0.959       652\n\n    accuracy                          0.947       983\n   macro avg      0.933     0.956     0.942       983\nweighted avg      0.952     0.947     0.948       983\n",
+      "val_report": "              precision    recall  f1-score   support\n\n         0.0      0.407     0.965     0.572       142\n         1.0      0.941     0.286     0.438       280\n\n    accuracy                          0.514       422\n   macro avg      0.674     0.625     0.505       422\nweighted avg      0.761     0.514     0.483       422\n"
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.15314394788395974,
+      "val_loss": 0.3712982641799109,
+      "train_report": "              precision    recall  f1-score   support\n\n         0.0      0.909     0.997     0.951       331\n         1.0      0.998     0.949     0.973       652\n\n    accuracy                          0.965       983\n   macro avg      0.954     0.973     0.962       983\nweighted avg      0.968     0.965     0.966       983\n",
+      "val_report": "              precision    recall  f1-score   support\n\n         0.0      0.480     0.908     0.628       142\n         1.0      0.915     0.500     0.647       280\n\n    accuracy                          0.637       422\n   macro avg      0.697     0.704     0.637       422\nweighted avg      0.768     0.637     0.640       422\n"
+    }
+  ],
+  "final_report": "              precision    recall  f1-score   support\n\n         0.0      0.480     0.908     0.628       142\n         1.0      0.915     0.500     0.647       280\n\n    accuracy                          0.637       422\n   macro avg      0.697     0.704     0.637       422\nweighted avg      0.768     0.637     0.640       422\n",
+  "config": {
+    "batch_size": 32,
+    "epochs": 5,
+    "early_stopping_patience": 3,
+    "pos_weight": 0.5076687116564417
+  }
+}

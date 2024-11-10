@@ -1,0 +1,21 @@
+{
+  "val_accuracy": 67.29857819905213,
+  "best_epoch": 0,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6520000919699669,
+      "train_acc": 64.80162767039674,
+      "val_loss": 0.6408751308917999,
+      "val_acc": 67.29857819905213
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.6065785065293312,
+      "train_acc": 67.44659206510681,
+      "val_loss": 0.6188751459121704,
+      "val_acc": 67.29857819905213
+    }
+  ],
+  "classification_report": "              precision    recall  f1-score   support\n\n         0.0      0.000     0.000     0.000       138\n         1.0      0.673     1.000     0.805       284\n\n    accuracy                          0.673       422\n   macro avg      0.336     0.500     0.402       422\nweighted avg      0.453     0.673     0.541       422\n"
+}
