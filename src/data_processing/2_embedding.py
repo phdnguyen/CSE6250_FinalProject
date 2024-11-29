@@ -33,13 +33,11 @@ for text in X:
 
 # Create a vocab object without the 'max_size' argument
 vocab = build_vocab_from_iterator(
-    [text.split() for text in X],
-    specials=['<unk>', '<pad>'],
-    special_first=True
+    [text.split() for text in X], specials=["<unk>", "<pad>"], special_first=True
 )
 
 # Set unknown index
-vocab.set_default_index(vocab['<unk>'])
+vocab.set_default_index(vocab["<unk>"])
 
 # Create input tensors
 word_vector = [[vocab[token] for token in text.split()] for text in X]
@@ -57,7 +55,9 @@ print("--------------------------")
 
 # Pad sequences to the maximum length
 MAX_SEQ_LENGTH = max(len(seq) for seq in word_vector)
-input_tensor = pad_sequence(input_tensor, batch_first=True, padding_value=vocab['<pad>'])
+input_tensor = pad_sequence(
+    input_tensor, batch_first=True, padding_value=vocab["<pad>"]
+)
 
 # Save input tensor
 print("----Saving Input Tensor-----")

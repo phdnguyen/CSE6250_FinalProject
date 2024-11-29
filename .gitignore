@@ -166,6 +166,7 @@ cython_debug/
 
 data/raw/
 data/processed/
+data/external/GoogleNews-vectors-negative300.bin
 
 
 #Mac files
