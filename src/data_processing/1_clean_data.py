@@ -3,9 +3,9 @@ import pandas as pd
 import re
 import nltk
 
-# nltk.download('punkt_tab') #uncomment to download this package
+nltk.download('punkt_tab') #uncomment to download this package
 
-# nltk.download('stopwords') #uncomment to download this package
+nltk.download('stopwords') #uncomment to download this package
 
 from nltk.corpus import stopwords
 
