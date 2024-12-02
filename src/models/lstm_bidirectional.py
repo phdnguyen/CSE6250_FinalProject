@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,12 +9,15 @@ import pickle
 import numpy as np
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, accuracy_score
+import matplotlib.pyplot as plt
 
 # Set the root directory to the project root
 root_dir = Path(__file__).resolve().parents[2]
+output_dir = root_dir / "output" / "lstm_bidirectional"
+output_dir.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
 
-log_path = root_dir / "logs" / "lstm_bidirectional_results.log"
+log_path = root_dir / "logs" / "lstm_bidirectional_avg_results.log"
 
 # Ensure the log directory exists
 log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -79,9 +83,9 @@ class BiLSTMModel(nn.Module):
         x = self.fc2(x)
         return x
 
-
-def train_and_evaluate(model, train_loader, test_loader, criterion, optimizer, device, is_binary):
+def train_and_evaluate(model, train_loader, test_loader, criterion, optimizer, device):
     model.to(device)
+    epoch_losses = []
     for epoch in range(EPOCHS):
         model.train()
         running_loss = 0.0
@@ -97,6 +101,7 @@ def train_and_evaluate(model, train_loader, test_loader, criterion, optimizer, d
             running_loss += loss.item()
 
         avg_loss = running_loss / len(train_loader)
+        epoch_losses.append(avg_loss)
         logger.info(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {avg_loss:.4f}")
 
     logger.info("Training completed.")
@@ -109,67 +114,109 @@ def train_and_evaluate(model, train_loader, test_loader, criterion, optimizer, d
         for inputs, labels in test_loader:
             inputs = inputs.to(device)
             outputs = model(inputs)
-            if is_binary:
+            if criterion.__class__.__name__ == "BCEWithLogitsLoss":
                 preds.extend(torch.round(torch.sigmoid(outputs)).cpu().numpy().flatten())
             else:
                 preds.extend(torch.argmax(outputs, axis=1).cpu().numpy())
             actuals.extend(labels.cpu().numpy())
 
-    # Log classification report
-    logger.info("Generating classification report")
-    report = classification_report(actuals, preds, digits=3)
-    logger.info("Classification Report:\n" + report)
-    logger.info("------------------------------------------")
+    return preds, actuals, epoch_losses
 
+def save_confusion_matrix(actuals, preds, is_binary, output_dir, run):
+    try:
+        cm = confusion_matrix(actuals, preds)
+        display_labels = ['Class 0', 'Class 1'] if is_binary else [f"Class {i}" for i in range(NUM_CLASSES)]
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=display_labels)
+        disp.plot(cmap='Blues', xticks_rotation='vertical')
+        plt.title(f"Confusion Matrix - Run {run}")
+        file_path = output_dir / f"confusion_matrix_run{run}.png"
+        plt.savefig(file_path)
+        print(f"Confusion matrix saved to {file_path}")
+        plt.close()
+    except Exception as e:
+        print(f"Error saving confusion matrix for run {run}: {e}")
 
-# Prepare data for binary classification
-x_train_bin, x_test_bin, y_train_bin, y_test_bin = train_test_split(
-    input_tensor,
-    cleaned_data["behavior_tobacco_binary"].values,
-    test_size=0.3,
-    random_state=42,
-)
-y_train_bin = torch.tensor(y_train_bin, dtype=torch.float32).unsqueeze(1)
-y_test_bin = torch.tensor(y_test_bin, dtype=torch.float32).unsqueeze(1)
+def save_loss_plot(losses, output_dir, run):
+    try:
+        plt.plot(range(1, len(losses) + 1), losses, marker='o')
+        plt.title(f"Loss Function Over Epochs - Run {run}")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.grid()
+        file_path = output_dir / f"loss_plot_run{run}.png"
+        plt.savefig(file_path)
+        print(f"Loss plot saved to {file_path}")
+        plt.close()
+    except Exception as e:
+        print(f"Error saving loss plot for run {run}: {e}")
 
-train_data_bin = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_train_bin, y_train_bin)]
-test_data_bin = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_test_bin, y_test_bin)]
+# Helper function to calculate average and std for metrics
+def calculate_avg_std(metrics_list):
+    avg_metrics = {key: np.mean([metrics[key] for metrics in metrics_list]) for key in metrics_list[0]}
+    std_metrics = {key: np.std([metrics[key] for metrics in metrics_list]) for key in metrics_list[0]}
+    return avg_metrics, std_metrics
 
-train_loader_bin = DataLoader(train_data_bin, batch_size=BATCH_SIZE, shuffle=True)
-test_loader_bin = DataLoader(test_data_bin, batch_size=BATCH_SIZE)
+# Main loop for binary and multi-class classification
+for classification_type, y, description in [('binary', cleaned_data["behavior_tobacco_binary"].values, "Binary"),
+                                             ('multiclass', cleaned_data["behavior_tobacco"].values, "Multi-Class")]:
+    logger.info(f"Starting {description} classification")
+    results = []
 
-# Binary classification model
-model_bin = BiLSTMModel(MAX_NUM_WORDS, EMBEDDING_DIM, 100, 1, embedding_matrix)
-criterion_bin = nn.BCEWithLogitsLoss()
-optimizer_bin = optim.Adam(model_bin.parameters(), lr=0.001)
+    # Create subdirectories for binary and multiclass
+    classification_output_dir = output_dir / description.lower()
+    classification_output_dir.mkdir(parents=True, exist_ok=True)
 
-# Train and evaluate for binary classification
-logger.info("Starting binary classification")
-train_and_evaluate(model_bin, train_loader_bin, test_loader_bin, criterion_bin, optimizer_bin, torch.device("cuda" if torch.cuda.is_available() else "cpu"), is_binary=True)
+    for run in range(3):  # Repeat 3 times
+        logger.info(f"Run {run + 1} for {description} classification")
 
-# Prepare data for multi-class classification
-x_train_multi, x_test_multi, y_train_multi, y_test_multi = train_test_split(
-    input_tensor,
-    cleaned_data["behavior_tobacco"].values,
-    test_size=0.3,
-    random_state=42,
-)
-y_train_multi = torch.tensor(y_train_multi, dtype=torch.long)
-y_test_multi = torch.tensor(y_test_multi, dtype=torch.long)
+        # Split the data
+        x_train, x_test, y_train, y_test = train_test_split(input_tensor, y, test_size=0.3, random_state=run)
+        
+        if classification_type == 'binary':
+            y_train = torch.tensor(y_train, dtype=torch.float32).unsqueeze(1)
+            y_test = torch.tensor(y_test, dtype=torch.float32).unsqueeze(1)
+            output_dim = 1
+            criterion = nn.BCEWithLogitsLoss()
+        else:  # Multi-class
+            y_train = torch.tensor(y_train, dtype=torch.long)
+            y_test = torch.tensor(y_test, dtype=torch.long)
+            output_dim = NUM_CLASSES
+            criterion = nn.CrossEntropyLoss()
 
-train_data_multi = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_train_multi, y_train_multi)]
-test_data_multi = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_test_multi, y_test_multi)]
+        # Prepare DataLoaders
+        train_data = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_train, y_train)]
+        test_data = [(x.clone().detach().to(torch.long), y) for x, y in zip(x_test, y_test)]
 
-train_loader_multi = DataLoader(train_data_multi, batch_size=BATCH_SIZE, shuffle=True)
-test_loader_multi = DataLoader(test_data_multi, batch_size=BATCH_SIZE)
+        train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
+        test_loader = DataLoader(test_data, batch_size=BATCH_SIZE)
 
-# Multi-class classification model
-model_multi = BiLSTMModel(MAX_NUM_WORDS, EMBEDDING_DIM, 100, NUM_CLASSES, embedding_matrix)
-criterion_multi = nn.CrossEntropyLoss()
-optimizer_multi = optim.Adam(model_multi.parameters(), lr=0.001)
+        # Initialize and train the model
+        model = BiLSTMModel(MAX_NUM_WORDS, EMBEDDING_DIM, 100, output_dim, embedding_matrix)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Train and evaluate for multi-class classification
-logger.info("Starting multi-class classification")
-train_and_evaluate(model_multi, train_loader_multi, test_loader_multi, criterion_multi, optimizer_multi, torch.device("cuda" if torch.cuda.is_available() else "cpu"), is_binary=False)
+        preds, actuals, losses = train_and_evaluate(
+            model, train_loader, test_loader, criterion, optimizer, torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        )
+
+        # Save confusion matrix and loss plot for this run
+        save_confusion_matrix(actuals, preds, is_binary=(classification_type == 'binary'), output_dir=classification_output_dir, run=run + 1)
+        save_loss_plot(losses, output_dir=classification_output_dir, run=run + 1)
+
+        # Generate classification report
+        report = classification_report(actuals, preds, output_dict=True, digits=3)
+        accuracy = accuracy_score(actuals, preds)
+        results.append({
+            "precision": report["macro avg"]["precision"],
+            "recall": report["macro avg"]["recall"],
+            "f1-score": report["macro avg"]["f1-score"],
+            "accuracy": accuracy
+        })
+
+    # Calculate averages and standard deviations
+    avg_metrics, std_metrics = calculate_avg_std(results)
+
+    # Log the results
+    logger.info(f"Averages for {description} classification: {avg_metrics}")
+    logger.info(f"Standard deviations for {description} classification: {std_metrics}")
 
 print("Training and evaluation completed. Check the log file for detailed results.")
